@@ -643,7 +643,7 @@ function build_uboot() {
 	#Apply patch
 	if [ ! -f ${SDK_SYSDRV_DIR}/source/.uboot_patch ]; then
 		echo "============Apply Uboot Patch============"
-		cd ${SDK_ROOT_DIR}
+		cd ${UBOOT_PATH}
 		git apply ${SDK_SYSDRV_DIR}/tools/board/uboot/*.patch
 		if [ $? -eq 0 ]; then
 			msg_info "Patch applied successfully."
@@ -652,6 +652,7 @@ function build_uboot() {
 			msg_error "Failed to apply the patch."
 			exit 1
 		fi
+		cd ${SDK_ROOT_DIR}
 	fi
 
 	cp ${SDK_SYSDRV_DIR}/tools/board/uboot/*_defconfig ${SDK_SYSDRV_DIR}/source/uboot/u-boot/configs
@@ -795,7 +796,7 @@ function build_kernel() {
 	#Apply patch
 	if [ ! -f ${SDK_SYSDRV_DIR}/source/.kernel_patch ]; then
 		echo "============Apply Kernel Patch============"
-		cd ${SDK_ROOT_DIR}
+		cd ${KERNEL_PATH}
 		git apply --verbose ${SDK_SYSDRV_DIR}/tools/board/kernel/*.patch
 		if [ $? -eq 0 ]; then
 			msg_info "Patch applied successfully."
@@ -808,6 +809,7 @@ function build_kernel() {
 		else
 			msg_error "Failed to apply the patch."
 		fi
+		cd ${SDK_ROOT_DIR}
 	fi
 
 	check_config RK_KERNEL_DTS RK_KERNEL_DEFCONFIG || return 0
@@ -1273,19 +1275,23 @@ function build_clean() {
 		cd ${SDK_ROOT_DIR}
 		make uboot_clean -C ${SDK_SYSDRV_DIR}
 		if [ -f ${SDK_SYSDRV_DIR}/source/.uboot_patch ]; then
+			cd ${UBOOT_PATH}
 			git apply -R --verbose ${SDK_SYSDRV_DIR}/tools/board/uboot/*.patch
 			rm -rf ${SDK_SYSDRV_DIR}/source/uboot/u-boot/arch/arm/dts/*luckfox*
 			rm -rf ${SDK_SYSDRV_DIR}/source/uboot/u-boot/configs/*luckfox*
 			rm ${SDK_SYSDRV_DIR}/source/.uboot_patch
+			cd ${SDK_ROOT_DIR}
 		fi
 
 		make kernel_clean -C ${SDK_SYSDRV_DIR}
 		if [ -f ${SDK_SYSDRV_DIR}/source/.kernel_patch ]; then
+			cd ${KERNEL_PATH}
 			git apply -R --verbose ${SDK_SYSDRV_DIR}/tools/board/kernel/*.patch
 			cp ${SDK_SYSDRV_DIR}/tools/board/kernel/logo_linux_clut224.ppm ${SDK_SYSDRV_DIR}/source/kernel/drivers/video/logo/logo_linux_clut224.ppm
 			rm -rf ${SDK_SYSDRV_DIR}/source/kernel/arch/arm/configs/*luckfox*
 			rm -rf ${SDK_SYSDRV_DIR}/source/kernel/arch/arm/boot/dts/*luckfox*
 			rm ${SDK_SYSDRV_DIR}/source/.kernel_patch
+			cd ${SDK_ROOT_DIR}
 		fi
 		;;
 	all)
@@ -2165,7 +2171,9 @@ __LINK_DEFCONFIG_FROM_BOARD_CFG() {
 
 	if [ ! -f ${SDK_SYSDRV_DIR}/source/.kernel_patch ]; then
 		echo "============Apply Kernel Patch============"
-		cd ${SDK_ROOT_DIR}
+		echo ${KERNEL_PATH}
+		cd ${KERNEL_PATH}
+		echo $(pwd)
 		git apply ${SDK_SYSDRV_DIR}/tools/board/kernel/*.patch
 		if [ $? -eq 0 ]; then
 			msg_info "Patch applied successfully."
