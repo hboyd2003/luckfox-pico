@@ -4,3 +4,6 @@
 [submodule "sysdrv/source/kernel"]
 	path = sysdrv/source/kernel
 	url = https://github.com/armbian/linux-rockchip/
+[submodule "sysdrv/source/uboot/u-boot"]
+	path = sysdrv/source/uboot/u-boot
+	url = https://github.com/rockchip-linux/u-boot
